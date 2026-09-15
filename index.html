@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗽</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Blvd Days — Queens Errands (3D)</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="title-screen" class="screen">
+        <div class="title-card">
+          <p class="eyebrow">A little day in</p>
+          <h1>Blvd Days</h1>
+          <p class="subtitle">3D errands across Rego Park &amp; Forest Hills.<br/>Cross Queens Blvd. Dodge the crowd. Watch the weather.</p>
+          <button id="btn-start" type="button">Start the Day</button>
+          <p class="hint">WASD / arrows · on-screen stick · E / Interact · weather toggle</p>
+        </div>
+      </div>
+
+      <div id="game-screen" class="screen hidden">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="hud">
+          <div id="area-label">Rego Park</div>
+          <div id="hud-right">
+            <button id="btn-weather" type="button" title="Toggle weather">☀️ Sunny</button>
+            <div id="day-meter">
+              <span class="day-label">Day Progress</span>
+              <div class="meter-bar"><div id="meter-fill"></div></div>
+              <span id="meter-text">0 / 3</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="quest-panel">
+          <h2>Today's Errands</h2>
+          <ul id="quest-list"></ul>
+        </div>
+
+        <div id="interact-prompt" class="hidden">E · Interact</div>
+        <div id="toast" class="hidden"></div>
+
+        <div id="dialog" class="hidden">
+          <p id="dialog-text"></p>
+          <button id="dialog-ok" type="button">OK</button>
+        </div>
+
+        <div id="touch-controls">
+          <div id="joystick-zone">
+            <div id="joystick-base">
+              <div id="joystick-knob"></div>
+            </div>
+          </div>
+          <button id="btn-interact" type="button">Interact</button>
+        </div>
+      </div>
+
+      <div id="win-screen" class="screen hidden">
+        <div class="title-card">
+          <h1>Day Done ✓</h1>
+          <p class="subtitle">Blvd crossed, bags in hand, train plaza reached.<br/>Queens keeps moving — you kept up.</p>
+          <button id="btn-replay" type="button">Another Day</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -8,6 +8,11 @@ import { Traffic } from './traffic';
 import { Weather } from './weather';
 import type { GameState, GoalZone } from './types';
 
+function isMobileClient(): boolean {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && window.innerWidth < 1100);
+}
+
 export class Game {
   private canvas: HTMLCanvasElement;
   private renderer: THREE.WebGLRenderer;
@@ -50,32 +55,38 @@ export class Game {
     this.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
     this.camera.position.set(0, 12, 16);
 
+    const mobile = isMobileClient();
+
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: !mobile,
       powerPreference: 'high-performance',
     });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    // Phone Safari: keep DPR modest so denser world stays playable
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x6b8f4a, 0.55);
+    const hemi = new THREE.HemisphereLight(0xd6ecff, 0x7a9a4e, 0.7);
     this.scene.add(hemi);
 
-    const sun = new THREE.DirectionalLight(0xfff1d0, 1.55);
-    sun.position.set(40, 60, 20);
+    // Single shadow-casting sun — never add street point lights
+    const sun = new THREE.DirectionalLight(0xfff4d6, 2.05);
+    sun.position.set(48, 70, 28);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    const mapSize = mobile ? 512 : 1024;
+    sun.shadow.mapSize.set(mapSize, mapSize);
     sun.shadow.camera.near = 5;
-    sun.shadow.camera.far = 160;
-    sun.shadow.camera.left = -60;
-    sun.shadow.camera.right = 60;
-    sun.shadow.camera.top = 60;
-    sun.shadow.camera.bottom = -60;
+    sun.shadow.camera.far = 170;
+    sun.shadow.camera.left = -70;
+    sun.shadow.camera.right = 70;
+    sun.shadow.camera.top = 70;
+    sun.shadow.camera.bottom = -70;
+    sun.shadow.bias = -0.0008;
     this.scene.add(sun);
 
-    const fill = new THREE.DirectionalLight(0xa0c0ff, 0.35);
+    const fill = new THREE.DirectionalLight(0xa8c8ff, 0.42);
     fill.position.set(-30, 20, -20);
     this.scene.add(fill);
 
@@ -89,10 +100,11 @@ export class Game {
     this.player = new Player();
     this.scene.add(this.player.group);
 
-    this.crowd = new Crowd(world.sidewalkSpans, 52);
+    // Denser sidewalk crowds; soft collision unchanged
+    this.crowd = new Crowd(world.sidewalkSpans, mobile ? 72 : 88);
     this.scene.add(this.crowd.group);
 
-    this.traffic = new Traffic();
+    this.traffic = new Traffic(world.blvdLanes);
     this.scene.add(this.traffic.group);
 
     this.input = new Input();
@@ -200,9 +212,7 @@ export class Game {
   }
 
   private updateCamera(dt: number) {
-    // Smooth third-person follow, slightly elevated, looking toward player facing
-    const desiredYaw = this.player.yaw + Math.PI; // behind player
-    // Keep cam mostly behind movement; blend slowly
+    const desiredYaw = this.player.yaw + Math.PI;
     let dy = desiredYaw - this.camYaw;
     while (dy > Math.PI) dy -= Math.PI * 2;
     while (dy < -Math.PI) dy += Math.PI * 2;
@@ -304,7 +314,6 @@ export class Game {
 
   private draw() {
     if (this.state === 'title') {
-      // Still render a pretty idle frame behind title? Title covers it — skip or render once
       return;
     }
     this.renderer.render(this.scene, this.camera);

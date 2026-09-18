@@ -72,39 +72,39 @@ export class Game {
     this.scene.add(hemi);
 
     // Single shadow-casting sun — never add street point lights
-    const sun = new THREE.DirectionalLight(0xfff4d6, 2.05);
-    sun.position.set(48, 70, 28);
+    const sun = new THREE.DirectionalLight(0xfff4d6, 2.15);
+    sun.position.set(52, 72, 30);
     sun.castShadow = true;
     const mapSize = mobile ? 512 : 1024;
     sun.shadow.mapSize.set(mapSize, mapSize);
     sun.shadow.camera.near = 5;
-    sun.shadow.camera.far = 170;
-    sun.shadow.camera.left = -70;
-    sun.shadow.camera.right = 70;
-    sun.shadow.camera.top = 70;
-    sun.shadow.camera.bottom = -70;
+    sun.shadow.camera.far = 180;
+    sun.shadow.camera.left = -75;
+    sun.shadow.camera.right = 75;
+    sun.shadow.camera.top = 75;
+    sun.shadow.camera.bottom = -75;
     sun.shadow.bias = -0.0008;
     this.scene.add(sun);
 
-    const fill = new THREE.DirectionalLight(0xa8c8ff, 0.42);
+    const fill = new THREE.DirectionalLight(0xa8c8ff, 0.45);
     fill.position.set(-30, 20, -20);
     this.scene.add(fill);
-
-    this.weather = new Weather(this.scene, sun, hemi, fill);
 
     const world = buildWorld();
     this.scene.add(world.group);
     this.colliders = world.colliders;
     this.goals = world.goals;
 
+    this.weather = new Weather(this.scene, sun, hemi, fill, world.wetSurfaces);
+
     this.player = new Player();
     this.scene.add(this.player.group);
 
-    // Denser sidewalk crowds; soft collision unchanged
-    this.crowd = new Crowd(world.sidewalkSpans, mobile ? 72 : 88);
+    // Denser sidewalk crowds; soft collision unchanged; skip ped castShadow
+    this.crowd = new Crowd(world.sidewalkSpans, mobile ? 80 : 104);
     this.scene.add(this.crowd.group);
 
-    this.traffic = new Traffic(world.blvdLanes);
+    this.traffic = new Traffic(world.blvdLanes, !mobile);
     this.scene.add(this.traffic.group);
 
     this.input = new Input();

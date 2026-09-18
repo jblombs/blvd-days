@@ -10,27 +10,35 @@ interface Persona {
   hair: string;
   headwear: 'none' | 'hijab' | 'kippah' | 'cap';
   scale: number;
+  prop?: 'bag' | 'none';
 }
 
 const PERSONAS: Persona[] = [
-  { skin: '#ffe0bd', shirt: '#2b6cb0', pants: '#1a202c', hair: '#3b2f2f', headwear: 'none', scale: 1 },
+  { skin: '#ffe0bd', shirt: '#2b6cb0', pants: '#1a202c', hair: '#3b2f2f', headwear: 'none', scale: 1, prop: 'bag' },
   { skin: '#f1c27d', shirt: '#38a169', pants: '#2d3748', hair: '#1a1a1a', headwear: 'cap', scale: 1.02 },
   { skin: '#c68642', shirt: '#9f7aea', pants: '#2c3e50', hair: '#0d0d0d', headwear: 'none', scale: 0.98 },
-  { skin: '#8d5524', shirt: '#e53e3e', pants: '#1a202c', hair: '#111', headwear: 'none', scale: 1.04 },
+  { skin: '#8d5524', shirt: '#e53e3e', pants: '#1a202c', hair: '#111', headwear: 'none', scale: 1.04, prop: 'bag' },
   { skin: '#6b3f2a', shirt: '#dd6b20', pants: '#2d3748', hair: '#0a0a0a', headwear: 'cap', scale: 1 },
   { skin: '#f3d1a5', shirt: '#4a5568', pants: '#1a202c', hair: '#5a4632', headwear: 'kippah', scale: 0.97 },
   { skin: '#e0ac69', shirt: '#319795', pants: '#2c3e50', hair: '#1a1a1a', headwear: 'hijab', scale: 1 },
   { skin: '#c58c55', shirt: '#ed8936', pants: '#234e52', hair: '#222', headwear: 'none', scale: 1.01 },
-  { skin: '#ffdbac', shirt: '#805ad5', pants: '#2d3748', hair: '#d4a017', headwear: 'none', scale: 0.99 },
+  { skin: '#ffdbac', shirt: '#805ad5', pants: '#2d3748', hair: '#d4a017', headwear: 'none', scale: 0.99, prop: 'bag' },
   { skin: '#8d5524', shirt: '#2c7a7b', pants: '#1a202c', hair: '#0d0d0d', headwear: 'hijab', scale: 1 },
   { skin: '#f1c27d', shirt: '#718096', pants: '#1a202c', hair: '#2b2118', headwear: 'kippah', scale: 1.03 },
   { skin: '#5c3317', shirt: '#f6e05e', pants: '#2d3748', hair: '#050505', headwear: 'none', scale: 1.05 },
   { skin: '#d4a574', shirt: '#e91e63', pants: '#1a202c', hair: '#1a1208', headwear: 'none', scale: 0.96 },
-  { skin: '#b97a57', shirt: '#00bcd4', pants: '#37474f', hair: '#0d0d0d', headwear: 'cap', scale: 1.01 },
+  { skin: '#b97a57', shirt: '#00bcd4', pants: '#37474f', hair: '#0d0d0d', headwear: 'cap', scale: 1.01, prop: 'bag' },
   { skin: '#ffe0bd', shirt: '#607d8b', pants: '#263238', hair: '#6d4c41', headwear: 'none', scale: 1.02 },
   { skin: '#8d5524', shirt: '#ffffff', pants: '#1a202c', hair: '#111', headwear: 'hijab', scale: 0.98 },
   { skin: '#c68642', shirt: '#1565c0', pants: '#2d3748', hair: '#1a1a1a', headwear: 'kippah', scale: 1 },
   { skin: '#f3d1a5', shirt: '#ff7043', pants: '#1a202c', hair: '#3e2723', headwear: 'none', scale: 1.03 },
+  // Extra variety for denser sidewalks (fictional locals only)
+  { skin: '#ffe0bd', shirt: '#00897b', pants: '#37474f', hair: '#4e342e', headwear: 'none', scale: 0.97 },
+  { skin: '#c68642', shirt: '#5c6bc0', pants: '#1a202c', hair: '#0d0d0d', headwear: 'cap', scale: 1.02, prop: 'bag' },
+  { skin: '#8d5524', shirt: '#f06292', pants: '#2d3748', hair: '#111', headwear: 'hijab', scale: 1 },
+  { skin: '#e0ac69', shirt: '#455a64', pants: '#263238', hair: '#1a1a1a', headwear: 'kippah', scale: 0.99 },
+  { skin: '#f1c27d', shirt: '#ef5350', pants: '#1a202c', hair: '#3e2723', headwear: 'none', scale: 1.04 },
+  { skin: '#6b3f2a', shirt: '#26a69a', pants: '#2c3e50', hair: '#050505', headwear: 'cap', scale: 1.01 },
 ];
 
 interface Agent {
@@ -43,6 +51,7 @@ interface Agent {
   heading: number;
   changeT: number;
   spanIndex: number;
+  bobPhase: number;
 }
 
 // Shared low-poly geos (fewer allocations, kinder on mobile)
@@ -55,6 +64,7 @@ const geoDrape = new THREE.CapsuleGeometry(0.2, 0.35, 2, 5);
 const geoKip = new THREE.CylinderGeometry(0.12, 0.13, 0.06, 8);
 const geoCap = new THREE.CylinderGeometry(0.2, 0.22, 0.12, 8);
 const geoBrim = new THREE.BoxGeometry(0.28, 0.04, 0.16);
+const geoBag = new THREE.BoxGeometry(0.22, 0.28, 0.12);
 
 export class Crowd {
   readonly group = new THREE.Group();
@@ -63,7 +73,7 @@ export class Crowd {
 
   constructor(
     spans: { minX: number; maxX: number; minZ: number; maxZ: number }[],
-    count = 84,
+    count = 96,
   ) {
     this.spans = spans;
     for (let i = 0; i < count; i++) {
@@ -86,6 +96,7 @@ export class Crowd {
         heading: ang,
         changeT: 1 + Math.random() * 3,
         spanIndex: i % spans.length,
+        bobPhase: Math.random() * Math.PI * 2,
       });
     }
   }
@@ -107,6 +118,7 @@ export class Crowd {
 
       a.x += a.vx * dt;
       a.z += a.vz * dt;
+      a.bobPhase += dt * 8;
 
       const span = this.spans[a.spanIndex];
       if (a.x < span.minX) { a.x = span.minX; a.vx = Math.abs(a.vx); }
@@ -133,27 +145,33 @@ export class Crowd {
       }
 
       a.heading = Math.atan2(a.vx, a.vz);
-      a.mesh.position.set(a.x, 0, a.z);
+      a.mesh.position.set(a.x, Math.abs(Math.sin(a.bobPhase)) * 0.04, a.z);
       a.mesh.rotation.y = a.heading;
     }
 
-    // Soft agent-agent separation (O(n^2) ok for ~80)
-    for (let i = 0; i < this.agents.length; i++) {
-      for (let j = i + 1; j < this.agents.length; j++) {
-        const a = this.agents[i];
+    // Soft agent-agent separation (spatial-ish: only nearby pairs via coarse skip)
+    const n = this.agents.length;
+    for (let i = 0; i < n; i++) {
+      const a = this.agents[i];
+      // Check a subset of later agents to keep O(n) softer on phone
+      const step = n > 90 ? 2 : 1;
+      for (let j = i + 1; j < n; j += step) {
         const b = this.agents[j];
         const dx = b.x - a.x;
         const dz = b.z - a.z;
-        const dist = Math.hypot(dx, dz);
+        const distSq = dx * dx + dz * dz;
         const minD = a.radius + b.radius;
-        if (dist < minD && dist > 1e-4) {
+        if (distSq < minD * minD && distSq > 1e-8) {
+          const dist = Math.sqrt(distSq);
           const push = ((minD - dist) / dist) * 0.5;
           a.x -= dx * push;
           a.z -= dz * push;
           b.x += dx * push;
           b.z += dz * push;
-          a.mesh.position.set(a.x, 0, a.z);
-          b.mesh.position.set(b.x, 0, b.z);
+          a.mesh.position.x = a.x;
+          a.mesh.position.z = a.z;
+          b.mesh.position.x = b.x;
+          b.mesh.position.z = b.z;
         }
       }
     }
@@ -188,6 +206,15 @@ function makePedestrian(p: Persona): THREE.Group {
   legR.position.set(0.1, 0.38, 0);
 
   g.add(torso, head, legL, legR);
+
+  if (p.prop === 'bag') {
+    const bag = new THREE.Mesh(
+      geoBag,
+      new THREE.MeshStandardMaterial({ color: '#5d4037', roughness: 0.8 }),
+    );
+    bag.position.set(0.32, 0.95, 0);
+    g.add(bag);
+  }
 
   if (p.headwear === 'hijab') {
     const hood = new THREE.Mesh(

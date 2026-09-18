@@ -2,7 +2,7 @@
 
 Phone-friendly **Three.js** errand adventure in a stylized **Rego Park** & **Forest Hills**, Queens. Walk crowded sidewalks, cross **Queens Boulevard**, toggle **sunny / rainy** weather, and finish everyday tasks.
 
-Not photoreal / not GTA — lit low-poly buildings with storefronts & awnings, multi-lane Blvd traffic, and diverse pedestrian agents you navigate around. Character and story are fictional.
+Not photoreal / not GTA — lit low-poly buildings with storefronts & readable signs, multi-lane Blvd traffic, and diverse pedestrian agents you navigate around. Character and story are fictional.
 
 ## Quick start
 
@@ -36,20 +36,21 @@ Day progress meter tracks completed errands.
 
 ## World
 
-- West: Rego Park blocks, storefronts, corner bodega with crates & signage  
-- Center: wide Queens Blvd (6 lanes, median trees, zebra crosswalks, cars + buses)  
-- East: Forest Hills blocks, subway entrance, post office  
+- West: Rego Park blocks, storefronts with mullions & awning signs, corner bodega with crates & **BODEGA** signage  
+- Center: wide Queens Blvd (6 lanes, median trees, zebra crosswalks, cars + buses, **QUEENS BOULEVARD** street signs)  
+- East: Forest Hills blocks, **SUBWAY / FOREST HILLS** entrance, post office  
 - Sidewalk furniture: curbs, hydrants, benches, trash cans, mailboxes, bus shelters  
-- ~70–90 sidewalk pedestrians with varied skin tones / clothing; some modest head coverings or kippot as simple geometry (respectful, not caricature)  
+- ~80–104 sidewalk pedestrians with varied skin tones / clothing; some modest head coverings or kippot as simple geometry (respectful, not caricature)  
 - Soft collision: walk around the crowd; buildings are solid  
-- Sunny vs rainy: strong lighting / fog contrast (single shadow sun — mobile-safe)
+- Sunny vs rainy: strong lighting / fog contrast; rainy lowers road roughness for a wet sheen + puddles (single shadow sun — mobile-safe)
 
 ## Tech
 
 - Vite + TypeScript + Three.js (WebGL)  
 - Canvas overlay UI for HUD / quests / touch  
+- Canvas-baked sign textures for landmark readability  
 - One directional shadow light + hemisphere/fill; rain via `THREE.Points`  
-- GitHub Pages base: `/blvd-days/`
+- GitHub Pages base: `/blvd-days/` (deploy from `gh-pages`)
 
 ## Known limits
 
@@ -57,7 +58,7 @@ Day progress meter tracks completed errands.
 - No interior rooms; interact at outdoor markers  
 - No save/load  
 - Crowd AI is sidewalk wander + separation (not full navmesh)  
-- Mobile Safari: pixel ratio capped; pedestrians skip castShadow; denser crowds may still warm the device  
+- Mobile Safari: pixel ratio capped; pedestrians skip castShadow; denser crowds (~80) + traffic may still warm the device  
 
 ## License
 
